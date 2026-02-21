@@ -444,38 +444,26 @@ class SmartAuthenticationINTL(SmartAuthentication):
         """Generate headers for INTL API requests (sg-app-api.smart.com).
 
         The sg-app-api.smart.com endpoints do not validate X-Ca-Signature,
-        so we can use empty or minimal signatures.
+        so we use minimal headers matching the working Android client format.
         """
         import time
         import uuid
 
         timestamp = str(int(time.time() * 1000))
-        nonce = str(uuid.uuid4()).upper()
+        nonce = str(uuid.uuid4())
 
         headers = {
-            "Host": "sg-app-api.smart.com",
-            "User-Agent": "GlobalSmart/1.0.7 (iPhone; iOS 18.6.1; Scale/3.00)",
+            "Content-Type": "application/json;charset=UTF-8",
+            "Accept": "application/json;charset=UTF-8",
             "X-Ca-Key": INTL_CA_KEY,
-            "X-Ca-Timestamp": timestamp,
             "X-Ca-Nonce": nonce,
-            "X-Ca-Signature-Method": "HmacSHA256",
-            "X-Ca-Signature": "",  # Not validated by server
-            "X-Ca-Signature-Headers": (
-                "Accept-Language,User-Agent,X-Ca-Nonce,X-Ca-Timestamp,"
-                "Xs-App-Ver,Xs-Auth-Token,Xs-Client-Id,Xs-Di,Xs-Os,Xs-Session-Id,Xs-Ui"
-            ),
-            "Xs-Os": "iOS",
-            "Xs-App-Ver": "1.0.7",
-            "Xs-Session-Id": self.session_id,
-            "Xs-Di": self.device_identifier,
-            "Xs-Ui": secrets.token_hex(16),
-            "Xs-Auth-Token": auth_token,
-            "Xs-Client-Id": self.client_id,
-            "Accept": "*/*",
-            "Accept-Language": "en-AU;q=1",
-            "Content-Type": "application/json",
-            "Cache-Control": "no-cache",
+            "X-Ca-Timestamp": timestamp,
+            "X-App-Id": "SmartAPPGlobal",
+            "User-Agent": "ALIYUN-ANDROID-DEMO",
         }
+
+        if auth_token:
+            headers["Xs-Auth-Token"] = auth_token
 
         return headers
 
